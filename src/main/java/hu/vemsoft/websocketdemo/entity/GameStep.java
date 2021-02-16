@@ -1,7 +1,16 @@
 package hu.vemsoft.websocketdemo.entity;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+@Entity
 public class GameStep {
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id;
 	private int gameId;
 	private Integer cellIdOne;
 	private Integer cellIdTwo;
@@ -9,6 +18,19 @@ public class GameStep {
 	private String classTwo;
 
 	protected GameStep() {
+	}
+
+	public GameStep(int gameId) {
+		super();
+		this.gameId = gameId;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public int getGameId() {
@@ -99,8 +121,8 @@ public class GameStep {
 
 	@Override
 	public String toString() {
-		return "GameStep [gameId=" + gameId + ", cellIdOne=" + cellIdOne + ", cellIdTwo=" + cellIdTwo + ", classOne="
-				+ classOne + ", classTwo=" + classTwo + "]";
+		return "GameStep [id=" + id + ", gameId=" + gameId + ", cellIdOne=" + cellIdOne + ", cellIdTwo=" + cellIdTwo
+				+ ", classOne=" + classOne + ", classTwo=" + classTwo + "]";
 	}
 
 }

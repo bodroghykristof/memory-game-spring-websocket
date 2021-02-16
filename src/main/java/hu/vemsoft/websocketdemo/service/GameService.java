@@ -27,6 +27,9 @@ public class GameService {
 	@Autowired
 	private GameStateService gameStateService;
 
+	@Autowired
+	private GameStepService gameStepService;
+
 	public List<Game> findAll() {
 		List<Game> games = new ArrayList<>();
 		for (Game game : gameRepository.findAll()) {
@@ -39,6 +42,7 @@ public class GameService {
 	public void initNewGame(int gameId) {
 		gameCellService.initNewGame(gameId);
 		gameStateService.initNewGame(gameId);
+		gameStepService.initNewGame(gameId);
 	}
 
 	@Transactional
@@ -54,9 +58,12 @@ public class GameService {
 	@Transactional
 	public GameState handleFirstStep(GameStep gameStep) {
 		GameState gameState = gameStateService.findByGameId(gameStep.getGameId());
-		gameState.setFirstGuess(true);
 		GameCell gameCell = gameCellService.findByGameIdAndCellId(gameStep.getGameId(), gameStep.getCellIdOne());
+		gameCell.setRevealed(true);
+		gameCellService.save(gameCell);
 		gameStep.setClassOne(gameCell.getRevealedClass());
+		gameStepService.saveLastGameStep(gameStep);
+		gameState.setFirstGuess(true);
 		gameState.setLastStep(gameStep);
 		gameStateService.save(gameState);
 		return gameState;
@@ -65,25 +72,29 @@ public class GameService {
 	@Transactional
 	public GameState handleSecondStep(GameStep gameStep) {
 		GameState gameState = gameStateService.findByGameId(gameStep.getGameId());
-		gameState.setFirstGuess(false);
 		GameCell gameCell = gameCellService.findByGameIdAndCellId(gameStep.getGameId(), gameStep.getCellIdTwo());
 		gameStep.setClassTwo(gameCell.getRevealedClass());
-		updatePointsAndOnRound(gameState, gameStep);
+		gameStepService.saveLastGameStep(gameStep);
+		manageMatchingStepsCase(gameState, gameStep, gameCell);
+		gameState.setFirstGuess(false);
 		gameState.setLastStep(gameStep);
 		gameStateService.save(gameState);
 		return gameState;
 	}
 
-	private void updatePointsAndOnRound(GameState gameState, GameStep gameStep) {
-		if (gameStep.getClassOne().equals(gameStep.getClassTwo())) {	
-			if (gameState.getOnRound().equals(PlayerIndex.FIRST)) {
-				gameState.setFirstPlayerPoints(gameState.getFirstPlayerPoints() + 1);
-			} else {
-				gameState.setSecondPlayerPoints(gameState.getSecondPlayerPoints() + 1);
-			}
+	private void manageMatchingStepsCase(GameState gameState, GameStep gameStep, GameCell secondStepGameCell) {
+		if (gameStep.getClassOne().equals(gameStep.getClassTwo())) {
+			secondStepGameCell.setRevealed(true);
+			gameCellService.save(secondStepGameCell);
+			gameStateService.updatePoints(gameState);
 		} else {
-			gameState.setOnRound(gameState.getOnRound() == PlayerIndex.FIRST ? PlayerIndex.SECOND : PlayerIndex.FIRST);
+			GameCell firstStepGameCell = gameCellService.findByGameIdAndCellId(gameStep.getGameId(),
+					gameStep.getCellIdOne());
+			firstStepGameCell.setRevealed(false);
+			gameCellService.save(firstStepGameCell);
+			gameStateService.switchRounds(gameState);
 		}
 	}
+
 
 }

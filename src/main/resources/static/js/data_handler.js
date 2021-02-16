@@ -8,6 +8,13 @@ export let data_handler = {
             .then(response => response.json())
             .then(json_response => callback(json_response));
     },
+    _api_get_no_callback: function (url) {
+        return fetch(url, {
+            method: 'GET',
+            credentials: 'same-origin'
+        })
+            .then(response => response.json());
+    },
     _api_post: function (url, data, callback) {
         fetch(url, {
             method: 'POST',

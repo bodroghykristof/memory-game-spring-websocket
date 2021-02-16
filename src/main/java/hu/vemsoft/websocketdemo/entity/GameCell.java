@@ -14,14 +14,17 @@ public class GameCell {
 	private Integer gameId;
 	private Integer cellId;
 	private String revealedClass;
-	
-	protected GameCell() {}
+	private boolean isRevealed;
+
+	protected GameCell() {
+	}
 
 	public GameCell(int gameId, Integer cellId, String revealedClass) {
 		super();
 		this.gameId = gameId;
 		this.cellId = cellId;
 		this.revealedClass = revealedClass;
+		this.isRevealed = false;
 	}
 
 	public Integer getId() {
@@ -56,13 +59,22 @@ public class GameCell {
 		this.revealedClass = revealedClass;
 	}
 
+	public boolean isRevealed() {
+		return isRevealed;
+	}
+
+	public void setRevealed(boolean isRevealed) {
+		this.isRevealed = isRevealed;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((cellId == null) ? 0 : cellId.hashCode());
-		result = prime * result + gameId;
+		result = prime * result + ((gameId == null) ? 0 : gameId.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + (isRevealed ? 1231 : 1237);
 		result = prime * result + ((revealedClass == null) ? 0 : revealedClass.hashCode());
 		return result;
 	}
@@ -81,12 +93,17 @@ public class GameCell {
 				return false;
 		} else if (!cellId.equals(other.cellId))
 			return false;
-		if (gameId != other.gameId)
+		if (gameId == null) {
+			if (other.gameId != null)
+				return false;
+		} else if (!gameId.equals(other.gameId))
 			return false;
 		if (id == null) {
 			if (other.id != null)
 				return false;
 		} else if (!id.equals(other.id))
+			return false;
+		if (isRevealed != other.isRevealed)
 			return false;
 		if (revealedClass == null) {
 			if (other.revealedClass != null)
@@ -99,7 +116,7 @@ public class GameCell {
 	@Override
 	public String toString() {
 		return "GameCell [id=" + id + ", gameId=" + gameId + ", cellId=" + cellId + ", revealedClass=" + revealedClass
-				+ "]";
+				+ ", isRevealed=" + isRevealed + "]";
 	}
 
 }

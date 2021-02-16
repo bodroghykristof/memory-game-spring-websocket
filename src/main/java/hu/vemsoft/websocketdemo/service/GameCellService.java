@@ -37,9 +37,20 @@ public class GameCellService {
 		
 
 	}
-
+	
+	@Transactional
 	public GameCell findByGameIdAndCellId(int gameId, Integer cellId) {
 		return gameCellRepository.findByGameIdAndCellId(gameId, cellId);
+	}
+	
+	@Transactional
+	public void save(GameCell gameCell) {
+		gameCellRepository.save(gameCell);
+	}
+	
+	@Transactional
+	public List<GameCell> findGuessedCellsByGameId(int gameId) {
+		return gameCellRepository.findGuessedCellsByGameId(gameId);
 	}
 
 }
