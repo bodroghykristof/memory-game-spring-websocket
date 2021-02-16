@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Multiplayer Memory Game</title>
+<link rel="stylesheet" href="./css/main.css">
+<link rel="stylesheet" href="./css/game.css">
+<link rel="stylesheet" href="./css/modal.css">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+</head>
+<body>
+	<div class="chat-box">
+		<div class="message-board"></div>
+		<input type="text" id="chat-input"><br>
+		<button id='chat-button'>Send</button>
+	</div>
+	<div class="game-field">
+		<h1>Find the pairs!</h1>
+	</div>
+	<div class="score-board">
+		<h3>Scoreboard</h3>
+		<br>
+		<table id="score-table">
+			<thead>
+				<tr>
+					<th id="player-one-name"></th>
+					<th id="player-two-name"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td id="player-one-score">0</td>
+					<td id="player-two-score">0</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class="modal fade custom-modal" id="winModal" tabindex="-1"
+		role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" id="resident-modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="residentModalLabel">End of the
+						game</h5>
+				</div>
+				<div class="modal-body">
+					<p class="game-result"></p>
+					<table id="decision-table">
+						<tr id="player-one-decision">
+							<td id="player-one-decision-name"></td>
+							<td id="player-one-decision-content"></td>
+						</tr>
+						<tr id="player-two-decision">
+							<td id="player-two-decision-name"></td>
+							<td id="player-two-decision-content"></td>
+						</tr>
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary"
+						id="new-game-button">New Game</button>
+					<button type="button" class="btn btn-secondary"
+						id="leave-room-button">Leave Room</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"
+		type="text/javascript" defer></script>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"
+		type="text/javascript" defer></script>
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+		integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+		crossorigin="anonymous" defer></script>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+		integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+		crossorigin="anonymous" defer></script>
+	<script
+		src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+		integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+		crossorigin="anonymous" defer></script>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"
+		type="text/javascript" defer></script>
+	<script src="./js/game.js" type="module" defer></script>
+</body>
+</html>

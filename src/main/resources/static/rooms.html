@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Memory Game</title>
+<link rel="stylesheet" href="./css/main.css">
+<link rel="stylesheet" href="./css/rooms.css">
+</head>
+<body>
+	<h1>Multiplayer Memory Game</h1>
+	<div class="boards">
+		<div class="room-board join-room">
+			<h3>Join Room</h3>
+		</div>
+		<div class="room-board spectate-room">
+			<h3>Spectate Room</h3>
+		</div>
+		<div class="room-board create-room">
+			<h3>Create Room</h3>
+			<form>
+				<label for="username-input">Username</label>
+				<input type="text" id="username-input" required="required"></input>
+				<label for="boardsize-input">Board size</label>
+				<input type="number" min=3 max=10 id="boardsize-input" required="required"></input>
+				<button id="create-button">Create Room</button>
+			</form>
+		</div>
+	</div>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"
+		type="text/javascript" defer></script>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"
+		type="text/javascript" defer></script>
+	<script src="./js/rooms.js" type="module" defer></script>
+</body>
+</html>
