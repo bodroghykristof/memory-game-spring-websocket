@@ -86,7 +86,7 @@ function createNewRoom(e) {
     const boardSize = document.querySelector('#boardsize-input').value;
     const gameData = {userNameOne: username, boardSize: boardSize}
 
-    if (username !== '' && boardSize > 2 && boardSize < 11) {
+    if (username !== '') {
     	stompClient.send("/app/room", {}, JSON.stringify(gameData));
     }
 }

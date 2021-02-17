@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="./css/main.css">
 <link rel="stylesheet" href="./css/game.css">
 <link rel="stylesheet" href="./css/modal.css">
+<link rel="stylesheet" href="./css/card-flip.css">
 <link rel="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
 </head>
@@ -17,6 +18,7 @@
 	</div>
 	<div class="game-field">
 		<h1>Find the pairs!</h1>
+		<h3 id="turn-header"></h3>
 	</div>
 	<div class="score-board">
 		<h3>Scoreboard</h3>
@@ -36,7 +38,7 @@
 			</tbody>
 		</table>
 	</div>
-	<div class="modal fade custom-modal" id="winModal" tabindex="-1"
+	<div class="modal fade custom-modal" id="endOfGameModal" tabindex="-1"
 		role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 		<div class="modal-dialog" id="resident-modal-dialog" role="document">
 			<div class="modal-content">
@@ -45,7 +47,7 @@
 						game</h5>
 				</div>
 				<div class="modal-body">
-					<p class="game-result"></p>
+					<p id="game-result-text"></p>
 					<table id="decision-table">
 						<tr id="player-one-decision">
 							<td id="player-one-decision-name"></td>
@@ -58,14 +60,19 @@
 					</table>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary"
-						id="new-game-button">New Game</button>
-					<button type="button" class="btn btn-secondary"
-						id="leave-room-button">Leave Room</button>
+					<a href="/rooms.html"><button type="button"
+							class="btn btn-secondary" id="leave-room-button">Back to
+							rooms</button></a>
 				</div>
 			</div>
 		</div>
 	</div>
+	<audio id="correct-audio">
+		<source src="./audio/correct.mp3" type="audio/mpeg">
+	</audio>
+	<audio id="wrong-audio">
+		<source src="./audio/wrong.mp3" type="audio/mpeg">
+	</audio>
 	<script
 		src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"
 		type="text/javascript" defer></script>

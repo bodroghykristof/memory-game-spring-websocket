@@ -41,5 +41,10 @@ public class GameStateService {
 	public void switchRounds(GameState gameState) {
 		gameState.setOnRound(gameState.getOnRound() == PlayerIndex.FIRST ? PlayerIndex.SECOND : PlayerIndex.FIRST);
 	}
+	
+	@Transactional
+	public void deleteByGameId(int gameId) {
+		gameStateRepository.deleteByGameId(gameId);
+	}
 
 }

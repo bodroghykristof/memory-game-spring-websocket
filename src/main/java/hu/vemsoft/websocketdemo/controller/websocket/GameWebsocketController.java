@@ -5,6 +5,7 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
 import hu.vemsoft.websocketdemo.entity.ChatMessage;
@@ -19,10 +20,19 @@ public class GameWebsocketController {
 	@Autowired
 	private GameService gameService;
 	
+	@Autowired
+	private GameWebsocketConnectionHandler connectionHandler;
+	
     @MessageMapping("/room")
     @SendTo("/topic/room")
     public Game saveRoom(@Payload Game game) {
     	return gameService.save(game);
+    }
+    
+    @MessageMapping("/game/join/{gameId}")
+    public void joinUserToGame(@DestinationVariable int gameId, SimpMessageHeaderAccessor headerAccessor) {
+    	headerAccessor.getSessionAttributes().put("gameId", gameId);
+    	connectionHandler.registerUserConnect(gameId);
     }
     
     @MessageMapping("/game/step/{id}")
@@ -38,7 +48,6 @@ public class GameWebsocketController {
     @MessageMapping("/game/chat/{id}")
     @SendTo("/topic/game/chat/{id}")
     public ChatMessage sendGameChatMessage(@DestinationVariable int id, ChatMessage message) {
-    	System.out.println("Message transferred: " + message);
     	return message;
     }
 

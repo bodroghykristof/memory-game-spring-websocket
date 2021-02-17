@@ -15,4 +15,6 @@ public interface GameCellRepository extends CrudRepository<GameCell, Integer>{
 	@Query(value = "select c from GameCell c where c.gameId = :gameId and c.isRevealed = true")
 	List<GameCell> findGuessedCellsByGameId(@Param("gameId") int gameId);
 
+	void deleteByGameId(int gameId);
+
 }

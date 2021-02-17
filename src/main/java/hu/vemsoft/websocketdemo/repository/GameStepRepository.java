@@ -8,4 +8,6 @@ public interface GameStepRepository extends CrudRepository<GameStep, Integer> {
 
 	GameStep findByGameId(int gameId);
 
+	void deleteByGameId(int gameId);
+
 }

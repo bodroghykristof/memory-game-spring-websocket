@@ -3,13 +3,21 @@ import {data_handler} from "./data_handler.js";
 const gameData = JSON.parse(localStorage.getItem('game'));
 const username = localStorage.getItem('username');
 const isFirstPlayer = localStorage.getItem('username') === gameData.userNameOne;
-const SIZE = 4;
 const DEFAULT_CLASSNAME = 'fa fa-question';
 
 let stompClient;
 let activeGameStep = null;
 
+let cellElement = `	<label>
+						<input type="checkbox" />
+						<div class="card">
+							<div class="front"><i class="fa fa-question" aria-hidden="true"></i></div>
+							<div class="back"><i class="fa fa-question" aria-hidden="true"></i></div>
+						</div>
+					</label>`;
+
 init();
+
 
 async function init() {
     setupConnection();
@@ -21,7 +29,8 @@ async function init() {
     setScores(gameState);
     createMap(guessedCells);
     addChatActivity();
-    manageGuessingAcces(gameState);
+    manageGuessingAccesAndLabel(gameState);
+    checkEndOfGame(gameState);
 }
 
 function setupConnection() {
@@ -33,6 +42,8 @@ function setupConnection() {
     stompClient.connect({}, () => {
     	stompClient.subscribe(`/topic/game/step/${gameData.id}`, gameRound);
     	stompClient.subscribe(`/topic/game/chat/${gameData.id}`, displayChatMessage);
+    	stompClient.subscribe(`/topic/game/info/${gameData.id}`, () => displayModal('opponent-leave'));
+    	stompClient.send(`/app/game/join/${gameData.id}`, {}, JSON.stringify(''));
     }, () => console.log("Connection error"));
 	
 }
@@ -57,14 +68,16 @@ function createMap(guessedCells) {
 }
 
 function createEmptyTable() {
+	let size = gameData.boardSize;
 	const gameField = document.querySelector('.game-field');
 	let gameTable = document.createElement('table');
 	let tableContent = `<tr>`
-		for (let cell = 1; cell <=SIZE**2; cell++) {
-			tableContent += `<td id="cell-${cell}" class="active"><i class="fa fa-question" aria-hidden="true"></i></td>`
-				if (cell % SIZE === 0 && cell !== SIZE**2) {
-					tableContent += `</tr><tr>`
-				}
+		for (let cell = 1; cell <= size**2; cell++) {
+//			tableContent += `<td id="cell-${cell}" class="active"><i class="fa fa-question" aria-hidden="true"></i></td>`
+			tableContent += `<td id="cell-${cell}" class="active">${cellElement}</i></td>`
+			if (cell % size === 0 && cell !== size**2) {
+				tableContent += `</tr><tr>`
+			}
 		}
 	tableContent += `</tr>`
 		gameTable.innerHTML = tableContent;
@@ -125,18 +138,21 @@ function gameRound(data) {
 		activeGameStep = null;
 		
 		if (gameState.lastStep.classOne !== gameState.lastStep.classTwo) {
+			playAudio('wrong-audio');
 			showAndHide(gameState);	
 		} else {
+			playAudio('correct-audio');
 			showPermanently(gameState.lastStep);
-			manageGuessingAcces(gameState);
+			manageGuessingAccesAndLabel(gameState);
 			setScores(gameState);
+			checkEndOfGame(gameState);
 		}
 	}
 }
 
 function revealCell(cellId, className) {
 	const cell = document.querySelector(`#cell-${cellId}`);
-	const icon = cell.querySelector('i');
+	const icon = cell.querySelector('.back i');
 	icon.classList.remove('fa-question');
 	icon.classList.add(className);
 }
@@ -148,9 +164,9 @@ function showAndHide(gameState) {
 	removeShowingFunctionality();
 	
 	setTimeout(() => {
-		cellOne.querySelector('i').className = DEFAULT_CLASSNAME;
-		cellTwo.querySelector('i').className = DEFAULT_CLASSNAME;
-		manageGuessingAcces(gameState);
+		cellOne.querySelector('.back i').className = DEFAULT_CLASSNAME;
+		cellTwo.querySelector('.back i').className = DEFAULT_CLASSNAME;
+		manageGuessingAccesAndLabel(gameState);
 	}, 2000);
 }
 
@@ -159,15 +175,18 @@ function showPermanently(lastStep) {
 	cellOne.classList.remove('active');
 	let cellTwo = document.getElementById(`cell-${lastStep.cellIdTwo}`);
 	cellTwo.classList.remove('active');
-	
 }
 
-function manageGuessingAcces(gameState) {
+function manageGuessingAccesAndLabel(gameState) {
+	let turnLabel = "label";
 	if (playerCanGuess(gameState)) {
 		addShowingFunctionality();
+		turnLabel = 'Your turn';
 	} else {
 		removeShowingFunctionality();
+		turnLabel = "Opponent's turn";
 	}
+	document.querySelector('#turn-header').innerHTML = turnLabel;
 }
 
 function playerCanGuess(gameState) {
@@ -178,6 +197,25 @@ function playerCanGuess(gameState) {
 function setScores(gameState) {
 	document.querySelector('#player-one-score').innerHTML = isFirstPlayer ? gameState.firstPlayerPoints.toString() : gameState.secondPlayerPoints.toString();
 	document.querySelector('#player-two-score').innerHTML = isFirstPlayer ? gameState.secondPlayerPoints.toString() : gameState.firstPlayerPoints.toString();
+}
+
+function checkEndOfGame(gameState) {
+	const overallScoreWhenGameOver = (gameData.boardSize ** 2) / 2;
+	const firstPlayerScore = gameState.firstPlayerPoints
+	const secondPlayerScore = gameState.secondPlayerPoints
+	if (overallScoreWhenGameOver === firstPlayerScore + secondPlayerScore) {
+		if (firstPlayerScore === secondPlayerScore) {
+			displayModal('tie');
+		} else if (playerHasWon(firstPlayerScore, secondPlayerScore)) {
+			displayModal('win');
+		} else {
+			displayModal('lose');
+		}
+	}
+}
+
+function playerHasWon(firstPlayerScore, secondPlayerScore) {
+	return (isFirstPlayer && firstPlayerScore > secondPlayerScore) || (!isFirstPlayer && firstPlayerScore < secondPlayerScore);
 }
 
 function displayChatMessage(data) {
@@ -195,4 +233,25 @@ function createMessageElement(messageObj) {
 	const element = document.createElement('div');
 	element.innerHTML = `<b>${messageObj.username}</b>: ${messageObj.message}`;
 	return element;
+}
+
+function playAudio(elementId) {
+	document.getElementById(elementId).play(); 
+}
+
+function displayModal(situation) {
+    switch (situation) {
+        case 'win':
+            document.querySelector('#game-result-text').innerHTML = 'Congratulations! You won!';
+            break
+        case 'lose':
+            document.querySelector('#game-result-text').innerHTML = 'Oooops, you lost...';
+            break
+        case 'tie':
+            document.querySelector('#game-result-text').innerHTML = "It's a tie!";
+            break
+        default:
+            document.querySelector('#game-result-text').innerHTML = "Your opponent has left the game";
+    }
+    $('#endOfGameModal').modal({backdrop: 'static', keyboard: false});
 }

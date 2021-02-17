@@ -1,6 +1,7 @@
 package hu.vemsoft.websocketdemo.controller.api;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,20 +41,21 @@ public class GameApiController {
 	}
 	
 	@PostMapping("/init/{gameId}")
-	public void initNewGame(@PathVariable("gameId") int gameId) {
-		gameService.initNewGame(gameId);
+	public void initNewGame(@PathVariable("gameId") int gameId) throws Exception {
+		Optional<Game> game = gameService.findById(gameId);
+		if (game.isPresent()) {
+			gameService.initNewGame(game.get());			
+		} else throw new Exception("The requested game does not exist");
 	}
 	
 	@GetMapping("/cells/{gameId}")
 	public List<GameCell> getCells(@PathVariable("gameId") int gameId) {
-		System.out.println("Fetching game cells...");
 		return gameCellService.findGuessedCellsByGameId(gameId);
 	}
 	
 	@GetMapping("/state/{gameId}")
 	public GameState getGameState(@PathVariable("gameId") int gameId) {
 		GameState gameState = gameStateService.findByGameId(gameId);
-		System.out.println("State of current game :" + gameState);
 		GameStep lastStep = gameStepService.findByGameId(gameId);
 		gameState.setLastStep(lastStep);
 		return gameState;

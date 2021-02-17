@@ -23,8 +23,6 @@ public class GameState {
 	@Enumerated(EnumType.STRING)
 	private PlayerIndex onRound;
 
-	private boolean isFirstGuess;
-
 	@Transient
 	private GameStep lastStep;
 	
@@ -36,7 +34,6 @@ public class GameState {
 		this.firstPlayerPoints = 0;
 		this.secondPlayerPoints = 0;
 		this.onRound = PlayerIndex.FIRST;
-		this.isFirstGuess = true;
 	}
 
 	public Integer getId() {
@@ -79,14 +76,6 @@ public class GameState {
 		this.onRound = onRound;
 	}
 
-	public boolean isFirstGuess() {
-		return isFirstGuess;
-	}
-
-	public void setFirstGuess(boolean isFirstGuess) {
-		this.isFirstGuess = isFirstGuess;
-	}
-
 	public GameStep getLastStep() {
 		return lastStep;
 	}
@@ -123,8 +112,7 @@ public class GameState {
 	@Override
 	public String toString() {
 		return "GameState [id=" + id + ", gameId=" + gameId + ", firstPlayerPoints=" + firstPlayerPoints
-				+ ", secondPlayerPoints=" + secondPlayerPoints + ", onRound=" + onRound + ", isFirstGuess="
-				+ isFirstGuess + "]";
+				+ ", secondPlayerPoints=" + secondPlayerPoints + ", onRound=" + onRound + "]";
 	}
 
 }

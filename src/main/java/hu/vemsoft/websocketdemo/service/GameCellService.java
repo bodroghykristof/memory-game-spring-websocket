@@ -1,41 +1,43 @@
 package hu.vemsoft.websocketdemo.service;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import hu.vemsoft.websocketdemo.entity.CellClass;
 import hu.vemsoft.websocketdemo.entity.GameCell;
 import hu.vemsoft.websocketdemo.repository.GameCellRepository;
 
 @Service
 public class GameCellService {
 
-	private List<Integer> classIndices = Arrays.asList(5, 13, 1, 11, 7, 6, 12, 4, 15, 2, 3, 14, 16, 8, 10, 9);
-	private List<String> classes = Arrays.asList("fa-star", "fa-shower", "fa-university", "fa-car", "fa-anchor",
-			"fa-bell", "fa-bicycle", "fa-bullseye");
-
 	@Autowired
 	private GameCellRepository gameCellRepository;
+	
+	@Autowired
+	private CellClassService cellClassService;
 
 	@Transactional
-	public void initNewGame(int gameId) {
+	public void initNewGame(int gameId, int boardSize) {
 		
-		for (int i = 0; i < classIndices.size(); i++) {
-			
-			int cellId = classIndices.get(i);
-			String revealedClass = classes.get(i / 2);
-			GameCell cell = new GameCell(gameId, cellId, revealedClass);
+		List<CellClass> distinctClassNames = cellClassService.getClassesByBoardSize(boardSize);
+		List<CellClass> classNamesDuplicated = Stream.concat(distinctClassNames.stream(), distinctClassNames.stream())
+													.collect(Collectors.toList());
+		Collections.shuffle(classNamesDuplicated);
+		
+		int cellId = 1;
+		for (CellClass cellClass : classNamesDuplicated) {
+			GameCell cell = new GameCell(gameId, cellId, cellClass.getName());
 			gameCellRepository.save(cell);
-			
-			System.out.println(cell);
-			
+			cellId++;
 		}
 		
-
 	}
 	
 	@Transactional
@@ -51,6 +53,11 @@ public class GameCellService {
 	@Transactional
 	public List<GameCell> findGuessedCellsByGameId(int gameId) {
 		return gameCellRepository.findGuessedCellsByGameId(gameId);
+	}
+	
+	@Transactional
+	public void deleteByGameId(int gameId) {
+		gameCellRepository.deleteByGameId(gameId);
 	}
 
 }

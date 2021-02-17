@@ -8,4 +8,6 @@ public interface GameStateRepository extends CrudRepository<GameState, Integer> 
 
 	GameState findByGameId(int gameId);
 
+	void deleteByGameId(int gameId);
+
 }
