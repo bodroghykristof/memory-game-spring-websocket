@@ -26,8 +26,6 @@ public class GameWebsocketEventListener {
 	@EventListener
 	public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
 
-		System.out.println("Disconnected");
-
 		StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
 		Integer gameId = (Integer) headerAccessor.getSessionAttributes().get("gameId");
 

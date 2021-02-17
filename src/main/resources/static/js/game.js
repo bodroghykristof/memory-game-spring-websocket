@@ -8,14 +8,6 @@ const DEFAULT_CLASSNAME = 'fa fa-question';
 let stompClient;
 let activeGameStep = null;
 
-let cellElement = `	<label>
-						<input type="checkbox" />
-						<div class="card">
-							<div class="front"><i class="fa fa-question" aria-hidden="true"></i></div>
-							<div class="back"><i class="fa fa-question" aria-hidden="true"></i></div>
-						</div>
-					</label>`;
-
 init();
 
 
@@ -73,8 +65,7 @@ function createEmptyTable() {
 	let gameTable = document.createElement('table');
 	let tableContent = `<tr>`
 		for (let cell = 1; cell <= size**2; cell++) {
-//			tableContent += `<td id="cell-${cell}" class="active"><i class="fa fa-question" aria-hidden="true"></i></td>`
-			tableContent += `<td id="cell-${cell}" class="active">${cellElement}</i></td>`
+			tableContent += `<td id="cell-${cell}" class="active"><i class="${DEFAULT_CLASSNAME}" aria-hidden="true"></i></td>`
 			if (cell % size === 0 && cell !== size**2) {
 				tableContent += `</tr><tr>`
 			}
@@ -152,7 +143,7 @@ function gameRound(data) {
 
 function revealCell(cellId, className) {
 	const cell = document.querySelector(`#cell-${cellId}`);
-	const icon = cell.querySelector('.back i');
+	const icon = cell.querySelector('i');
 	icon.classList.remove('fa-question');
 	icon.classList.add(className);
 }
@@ -164,8 +155,8 @@ function showAndHide(gameState) {
 	removeShowingFunctionality();
 	
 	setTimeout(() => {
-		cellOne.querySelector('.back i').className = DEFAULT_CLASSNAME;
-		cellTwo.querySelector('.back i').className = DEFAULT_CLASSNAME;
+		cellOne.querySelector('i').className = DEFAULT_CLASSNAME;
+		cellTwo.querySelector('i').className = DEFAULT_CLASSNAME;
 		manageGuessingAccesAndLabel(gameState);
 	}, 2000);
 }

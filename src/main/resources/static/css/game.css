@@ -9,8 +9,8 @@
 }
 
 .game-field table td {
-/*     background-color: lightgray;
-    border: solid black 2px; */
+    background-color: lightgray;
+    border: solid black 2px;
     width: 40px;
     height: 40px;
     font-size: 2em;
