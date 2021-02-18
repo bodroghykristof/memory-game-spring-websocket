@@ -32,6 +32,10 @@ function createGameDiv(game, comment) {
 	gameDiv.classList.add('room');
 	gameDiv.dataset.roomId = game.id;
 	gameDiv.innerHTML = gameDivContent(game, comment);
+	if (game.image) {
+		const imageTag = `<img src=${game.image} style="width: 200px;" alt="image-${game.id}"></img>`;
+		gameDiv.innerHTML += imageTag;
+	}
 	return gameDiv;
 }
 
@@ -84,11 +88,24 @@ function createNewRoom(e) {
     const username = document.querySelector('#username-input').value;
     localStorage.setItem('username', username);
     const boardSize = document.querySelector('#boardsize-input').value;
-    const gameData = {userNameOne: username, boardSize: boardSize}
-
+    const fileUploaded = document.querySelector('#room-image');
     if (username !== '') {
-    	stompClient.send("/app/room", {}, JSON.stringify(gameData));
+    	
+	    if (fileUploaded.files.length > 0) {
+	        let image = fileUploaded.files[0];
+	        const reader = new FileReader();
+	        reader.addEventListener("load",
+				          function () {
+				            const gameData = {userNameOne: username, boardSize: boardSize, image: reader.result};
+				            stompClient.send("/app/room", {}, JSON.stringify(gameData));
+				          });
+	        reader.readAsDataURL(image);
+	      } else {
+	    	const gameData = {userNameOne: username, boardSize: boardSize};
+	    	stompClient.send("/app/room", {}, JSON.stringify(gameData));
+	      }
     }
+
 }
 
 function gameRoomChange(data) {
@@ -130,7 +147,8 @@ function getGameObjFromCardWithoutPlayerTwo(roomCard) {
 	const playerTwo = localStorage.getItem('username');
 	const boardSize = parseInt(roomCard.querySelector('.boardSizeData').innerHTML);
 	const started = roomCard.querySelector('.startedData').innerHTML === 'true' ? true : false;
-	return {id: id, userNameOne: playerOne,  boardSize: boardSize, hasStarted: started};
+	const image =  roomCard.querySelector('img') ? roomCard.querySelector('img').src : null;
+	return {id: id, userNameOne: playerOne,  boardSize: boardSize, hasStarted: started, image: image};
 }
 
 function joinRoom() {

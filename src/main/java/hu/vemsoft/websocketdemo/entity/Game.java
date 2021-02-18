@@ -1,5 +1,6 @@
 package hu.vemsoft.websocketdemo.entity;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -15,6 +16,8 @@ public class Game {
 	private String userNameTwo;
 	private Integer boardSize;
 	private boolean hasStarted;
+	@Column(length=2000000)
+	private String image;
 
 	protected Game() {
 	}
@@ -72,6 +75,14 @@ public class Game {
 
 	public void setHasStarted(boolean hasStarted) {
 		this.hasStarted = hasStarted;
+	}
+
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		this.image = image;
 	}
 
 	@Override

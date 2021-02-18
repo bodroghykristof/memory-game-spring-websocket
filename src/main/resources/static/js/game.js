@@ -18,6 +18,7 @@ async function init() {
     console.log(gameState);
     activeGameStep = (gameState.lastStep.cellIdTwo !== null || gameState.lastStep.cellIdOne === null) ? null : gameState.lastStep;
     initScoreBoardNames();
+    showImage();
     setScores(gameState);
     createMap(guessedCells);
     addChatActivity();
@@ -52,6 +53,12 @@ function initScoreBoardNames() {
 	let opponent = gameData.userNameOne === username ? gameData.userNameTwo : gameData.userNameOne;
 	document.querySelector('#player-one-name').innerHTML = username;
 	document.querySelector('#player-two-name').innerHTML = opponent;
+}
+
+function showImage() {
+	if (gameData.image) {
+		document.querySelector('.image-container').innerHTML = `<img src=${gameData.image} style="width: 200px;" alt="image-${gameData.id}"></img>`
+	}
 }
 
 function createMap(guessedCells) {
@@ -143,6 +150,7 @@ function gameRound(data) {
 
 function revealCell(cellId, className) {
 	const cell = document.querySelector(`#cell-${cellId}`);
+	cell.classList.add('selected');
 	const icon = cell.querySelector('i');
 	icon.classList.remove('fa-question');
 	icon.classList.add(className);
@@ -151,12 +159,13 @@ function revealCell(cellId, className) {
 function showAndHide(gameState) {
 	let cellOne = document.getElementById(`cell-${gameState.lastStep.cellIdOne}`);
 	let cellTwo = document.getElementById(`cell-${gameState.lastStep.cellIdTwo}`);
-	
 	removeShowingFunctionality();
 	
 	setTimeout(() => {
 		cellOne.querySelector('i').className = DEFAULT_CLASSNAME;
 		cellTwo.querySelector('i').className = DEFAULT_CLASSNAME;
+		cellOne.classList.remove('selected');
+		cellTwo.classList.remove('selected');
 		manageGuessingAccesAndLabel(gameState);
 	}, 2000);
 }
@@ -164,8 +173,12 @@ function showAndHide(gameState) {
 function showPermanently(lastStep) {
 	let cellOne = document.getElementById(`cell-${lastStep.cellIdOne}`);
 	cellOne.classList.remove('active');
+	cellOne.classList.remove('selected');
+	cellOne.classList.add('guessed')
 	let cellTwo = document.getElementById(`cell-${lastStep.cellIdTwo}`);
 	cellTwo.classList.remove('active');
+	cellTwo.classList.remove('selected');
+	cellTwo.classList.add('guessed')
 }
 
 function manageGuessingAccesAndLabel(gameState) {

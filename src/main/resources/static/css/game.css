@@ -37,23 +37,24 @@
     width: 100%;
 }
 
-.inactive {
-    visibility: hidden;
+.guessed {
+    background-color: #029e00 !important;
+}
+
+.selected {
+	background-color: #fde100 !important;
+}
+
+.score-box {
+	display: flex;
+	justify-content: space-around;
 }
 
 .score-board {
-    text-align: center;
+	text-align: center;
 }
 
-#score-table {
-    margin: auto;
-    width: 40%;
+.score-board td {
+	width: 80px;
 }
 
-#score-table tr {
-    margin-bottom: 10px;
-}
-
-#score-table td, #score-table th {
-    width: 50%;
-}
