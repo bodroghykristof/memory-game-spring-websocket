@@ -1,4 +1,5 @@
 import {data_handler} from "./data_handler.js";
+import {file_handler} from "./service/file_handler.js";
 
 
 const joinButton = '<button class="join-button">Join Room</button>';
@@ -92,14 +93,10 @@ function createNewRoom(e) {
     if (username !== '') {
     	
 	    if (fileUploaded.files.length > 0) {
-	        let image = fileUploaded.files[0];
-	        const reader = new FileReader();
-	        reader.addEventListener("load",
-				          function () {
-				            const gameData = {userNameOne: username, boardSize: boardSize, image: reader.result};
-				            stompClient.send("/app/room", {}, JSON.stringify(gameData));
-				          });
-	        reader.readAsDataURL(image);
+	        file_handler._read_file_input(fileUploaded, (result) => {
+	        	const gameData = {userNameOne: username, boardSize: boardSize, image: result};
+	            stompClient.send("/app/room", {}, JSON.stringify(gameData));
+	        })    
 	      } else {
 	    	const gameData = {userNameOne: username, boardSize: boardSize};
 	    	stompClient.send("/app/room", {}, JSON.stringify(gameData));

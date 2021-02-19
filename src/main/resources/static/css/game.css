@@ -16,25 +16,36 @@
     font-size: 2em;
 }
 
+.message {
+	margin-top: 5px;
+}
+
 #chat-input {
 	width: 100%;
 	border: solid black 2px;
 }
 
+#file-input {
+	margin-top: 10px;
+	width: 100%;
+}
+
 .chat-box {
     text-align: center;
-    margin: 0 30px 30px 30px;
-    width: 15vw;
+    margin: 0 50px 30px 30px;
+    width: 25vw;
 }
 
 .message-board {
     text-align: left;
-    min-height: 450px;
     background-color: white;
     border: solid black 2px;
-    margin: 10px 0;
+    margin: 10px 30px 10px 0;
     overflow-wrap: break-word;
     width: 100%;
+    overflow-y: auto;
+    height: 50vh;
+    padding: 10px;
 }
 
 .guessed {
@@ -58,3 +69,7 @@
 	width: 80px;
 }
 
+button:disabled {
+  cursor: not-allowed;
+  pointer-events: all !important;
+}

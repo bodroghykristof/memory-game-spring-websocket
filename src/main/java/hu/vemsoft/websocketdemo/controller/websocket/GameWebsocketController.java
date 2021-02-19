@@ -47,7 +47,7 @@ public class GameWebsocketController {
     
     @MessageMapping("/game/chat/{id}")
     @SendTo("/topic/game/chat/{id}")
-    public ChatMessage sendGameChatMessage(@DestinationVariable int id, ChatMessage message) {
+    public String sendGameChatMessage(@DestinationVariable int id, String message) {
     	return message;
     }
 

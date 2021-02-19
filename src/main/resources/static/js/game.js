@@ -1,9 +1,11 @@
 import {data_handler} from "./data_handler.js";
+import {file_handler} from "./service/file_handler.js";
 
 const gameData = JSON.parse(localStorage.getItem('game'));
 const username = localStorage.getItem('username');
 const isFirstPlayer = localStorage.getItem('username') === gameData.userNameOne;
 const DEFAULT_CLASSNAME = 'fa fa-question';
+let audioChunks = [];
 
 let stompClient;
 let activeGameStep = null;
@@ -15,8 +17,7 @@ async function init() {
     setupConnection();
     const guessedCells = await fetchGameCells();
     const gameState = await fetchGameState();
-    console.log(gameState);
-    activeGameStep = (gameState.lastStep.cellIdTwo !== null || gameState.lastStep.cellIdOne === null) ? null : gameState.lastStep;
+    initActiveGameStep(gameState);
     initScoreBoardNames();
     showImage();
     setScores(gameState);
@@ -47,6 +48,11 @@ function fetchGameCells() {
 
 function fetchGameState() {
 	return data_handler._api_get_no_callback(`/game/state/${gameData.id}`);
+}
+
+
+function initActiveGameStep(gameState) {
+	activeGameStep = (gameState.lastStep.cellIdTwo !== null || gameState.lastStep.cellIdOne === null) ? null : gameState.lastStep;
 }
 
 function initScoreBoardNames() {
@@ -87,11 +93,17 @@ function revealGuessedCells(guessedCells) {
 		let cellElement = document.querySelector(`#cell-${cell.cellId} i`);
 		cellElement.className = `fa ${cell.revealedClass}`;
 		cellElement.parentElement.classList.remove('active');
+		if (activeGameStep && cell.cellId === activeGameStep.cellIdOne) {
+			cellElement.parentElement.classList.add('selected');			
+		} else {
+			cellElement.parentElement.classList.add('guessed');			
+		}
 	}
 }
 
 function addChatActivity() {
-	document.querySelector('#chat-button').addEventListener('click', sendMessage)
+	document.querySelector('#chat-button').addEventListener('click', sendMessage);
+	document.querySelector('#sound-button').addEventListener('click', recordSound);
 }
 
 
@@ -122,8 +134,67 @@ function convertElementIdToCellId(elementId) {
 
 function sendMessage() {
 	const messageContent = document.querySelector('#chat-input').value;
+	console.log(audioChunks);
 	const messageObj = {username: username, message: messageContent};
-	stompClient.send(`/app/game/chat/${gameData.id}`, {}, JSON.stringify(messageObj));
+	const fileUploaded = document.querySelector('#file-input');
+	if (fileUploaded.files.length > 0) {
+		file_handler._read_file_input(fileUploaded, (imageResult) => {
+			messageObj.file = imageResult;
+			fileUploaded.value = null;
+			if (audioChunks.length > 0) {	
+				file_handler._read_audio_input(audioChunks, (audioResult) => {
+					audioChunks = [];
+					messageObj.audio = audioResult;
+					stompClient.send(`/app/game/chat/${gameData.id}`, {}, JSON.stringify(messageObj));
+				});
+			} else {	
+				stompClient.send(`/app/game/chat/${gameData.id}`, {}, JSON.stringify(messageObj));
+			}
+        }) 
+	} else {
+		if (audioChunks.length > 0) {	
+			file_handler._read_audio_input(audioChunks, (audioResult) => {
+				audioChunks = [];
+				messageObj.audio = audioResult;
+				stompClient.send(`/app/game/chat/${gameData.id}`, {}, JSON.stringify(messageObj));
+			});	
+		} else {	
+			stompClient.send(`/app/game/chat/${gameData.id}`, {}, JSON.stringify(messageObj));
+		}
+	}
+}
+
+function recordSound() {
+	this.disabled = true;
+	document.querySelector('#stop-record-button').disabled = false;
+	navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+    		.then(handleSuccess);
+}
+
+function handleSuccess(stream) {
+
+    const options = {mimeType: 'audio/webm'};
+    audioChunks = [];
+    const mediaRecorder = new MediaRecorder(stream, options);
+
+    mediaRecorder.addEventListener('dataavailable', function(e) {
+    	
+		if (e.data.size > 0) {
+			audioChunks.push(e.data);
+		}
+	    
+    });
+
+    mediaRecorder.addEventListener('stop', function() {
+    	let oldStopButton = document.querySelector("#stop-record-button");
+    	let newStopButton = oldStopButton.cloneNode(true);
+    	oldStopButton.parentNode.replaceChild(newStopButton, oldStopButton)
+    	newStopButton.disabled = true;
+    	document.querySelector('#sound-button').disabled = false;
+    });
+    
+    document.querySelector('#stop-record-button').addEventListener('click', () => mediaRecorder.stop());
+    mediaRecorder.start();
 }
 
 function gameRound(data) {
@@ -225,9 +296,12 @@ function playerHasWon(firstPlayerScore, secondPlayerScore) {
 function displayChatMessage(data) {
 	
 	const message = JSON.parse(data.body);
+	
+	
 	const messageElement = createMessageElement(message);
 	const messageBoard = document.querySelector('.message-board');
 	messageBoard.appendChild(messageElement);
+	messageBoard.scrollTop = messageBoard.scrollHeight - messageBoard.clientHeight;
 	
 	document.querySelector('#chat-input').value = '';
 
@@ -235,7 +309,27 @@ function displayChatMessage(data) {
 
 function createMessageElement(messageObj) {
 	const element = document.createElement('div');
+	element.classList.add('message');
 	element.innerHTML = `<b>${messageObj.username}</b>: ${messageObj.message}`;
+	if (messageObj.file) {
+		const image = document.createElement('img');
+		image.src = messageObj.file;
+		image.alt = "chat-image";
+		image.style.setProperty('width', '24vw');
+		image.onload = () => {
+			const messageBoard = document.querySelector('.message-board');
+			messageBoard.scrollTop = messageBoard.scrollHeight - messageBoard.clientHeight;
+		}
+		image.addEventListener('click' , () => console.log('Ouch'));
+		let messageBoard = document.querySelector('.message-board');
+		element.appendChild(image);
+	}
+	if (messageObj.audio) {
+		const audio = document.createElement('audio');
+		audio.src = messageObj.audio;
+		audio.setAttribute('controls', '');
+		element.appendChild(audio);
+	}
 	return element;
 }
 
