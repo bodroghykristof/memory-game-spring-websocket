@@ -8,7 +8,6 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
-import hu.vemsoft.websocketdemo.entity.ChatMessage;
 import hu.vemsoft.websocketdemo.entity.Game;
 import hu.vemsoft.websocketdemo.entity.GameState;
 import hu.vemsoft.websocketdemo.entity.GameStep;

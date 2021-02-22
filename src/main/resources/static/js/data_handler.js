@@ -15,6 +15,19 @@ export let data_handler = {
         })
             .then(response => response.json());
     },
+    _api_get_error_callback_only: function (url, error_callback) {
+        return fetch(url, {
+            method: 'GET',
+            credentials: 'same-origin'
+        })
+            .then(response => {
+            	if (response.status === 404) {
+            		error_callback();
+            	} else {
+            		return response.json();
+            	}
+            });
+    },
     _api_post: function (url, data, callback) {
         fetch(url, {
             method: 'POST',

@@ -14,6 +14,7 @@ import hu.vemsoft.websocketdemo.entity.Game;
 import hu.vemsoft.websocketdemo.entity.GameCell;
 import hu.vemsoft.websocketdemo.entity.GameState;
 import hu.vemsoft.websocketdemo.entity.GameStep;
+import hu.vemsoft.websocketdemo.exception.GameNotFoundException;
 import hu.vemsoft.websocketdemo.service.GameCellService;
 import hu.vemsoft.websocketdemo.service.GameService;
 import hu.vemsoft.websocketdemo.service.GameStateService;
@@ -54,8 +55,12 @@ public class GameApiController {
 	}
 	
 	@GetMapping("/state/{gameId}")
-	public GameState getGameState(@PathVariable("gameId") int gameId) {
+	public GameState getGameState(@PathVariable("gameId") int gameId) throws GameNotFoundException {
 		GameState gameState = gameStateService.findByGameId(gameId);
+		if (gameState == null) {
+			System.out.println("GameApiController::getGameState - Requested game not found in database");
+			throw new GameNotFoundException(gameId);
+		}
 		GameStep lastStep = gameStepService.findByGameId(gameId);
 		gameState.setLastStep(lastStep);
 		return gameState;

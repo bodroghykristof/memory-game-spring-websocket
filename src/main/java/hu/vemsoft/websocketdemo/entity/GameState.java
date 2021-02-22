@@ -19,20 +19,23 @@ public class GameState {
 	private Integer gameId;
 	private Integer firstPlayerPoints;
 	private Integer secondPlayerPoints;
+	private boolean finished;
 
 	@Enumerated(EnumType.STRING)
 	private PlayerIndex onRound;
 
 	@Transient
 	private GameStep lastStep;
-	
-	protected GameState() {}
+
+	protected GameState() {
+	}
 
 	public GameState(Integer gameId) {
 		super();
 		this.gameId = gameId;
 		this.firstPlayerPoints = 0;
 		this.secondPlayerPoints = 0;
+		this.finished = false;
 		this.onRound = PlayerIndex.FIRST;
 	}
 
@@ -66,6 +69,14 @@ public class GameState {
 
 	public void setSecondPlayerPoints(Integer secondPlayerPoints) {
 		this.secondPlayerPoints = secondPlayerPoints;
+	}
+
+	public boolean isFinished() {
+		return finished;
+	}
+
+	public void setFinished(boolean finished) {
+		this.finished = finished;
 	}
 
 	public PlayerIndex getOnRound() {
@@ -112,7 +123,8 @@ public class GameState {
 	@Override
 	public String toString() {
 		return "GameState [id=" + id + ", gameId=" + gameId + ", firstPlayerPoints=" + firstPlayerPoints
-				+ ", secondPlayerPoints=" + secondPlayerPoints + ", onRound=" + onRound + "]";
+				+ ", secondPlayerPoints=" + secondPlayerPoints + ", finished=" + finished + ", onRound=" + onRound
+				+ ", lastStep=" + lastStep + "]";
 	}
 
 }

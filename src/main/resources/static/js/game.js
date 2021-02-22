@@ -15,8 +15,8 @@ init();
 
 async function init() {
     setupConnection();
-    const guessedCells = await fetchGameCells();
     const gameState = await fetchGameState();
+    const guessedCells = await fetchGameCells();
     initActiveGameStep(gameState);
     initScoreBoardNames();
     showImage();
@@ -42,14 +42,13 @@ function setupConnection() {
 	
 }
 
+function fetchGameState() {
+	return data_handler._api_get_error_callback_only(`/game/state/${gameData.id}`, () => window.location.replace('/rooms.html'));
+}
+
 function fetchGameCells() {
 	return data_handler._api_get_no_callback(`/game/cells/${gameData.id}`);
 }
-
-function fetchGameState() {
-	return data_handler._api_get_no_callback(`/game/state/${gameData.id}`);
-}
-
 
 function initActiveGameStep(gameState) {
 	activeGameStep = (gameState.lastStep.cellIdTwo !== null || gameState.lastStep.cellIdOne === null) ? null : gameState.lastStep;
@@ -143,9 +142,7 @@ function sendMessage() {
 			fileUploaded.value = null;
 			if (audioChunks.length > 0) {	
 				file_handler._read_audio_input(audioChunks, (audioResult) => {
-					audioChunks = [];
-					messageObj.audio = audioResult;
-					stompClient.send(`/app/game/chat/${gameData.id}`, {}, JSON.stringify(messageObj));
+					sendMessageWithAudio(messageObj, audioResult);
 				});
 			} else {	
 				stompClient.send(`/app/game/chat/${gameData.id}`, {}, JSON.stringify(messageObj));
@@ -154,14 +151,18 @@ function sendMessage() {
 	} else {
 		if (audioChunks.length > 0) {	
 			file_handler._read_audio_input(audioChunks, (audioResult) => {
-				audioChunks = [];
-				messageObj.audio = audioResult;
-				stompClient.send(`/app/game/chat/${gameData.id}`, {}, JSON.stringify(messageObj));
+				sendMessageWithAudio(messageObj, audioResult);
 			});	
 		} else {	
 			stompClient.send(`/app/game/chat/${gameData.id}`, {}, JSON.stringify(messageObj));
 		}
 	}
+}
+
+function sendMessageWithAudio(messageObj, audioResult) {
+	audioChunks = [];
+	messageObj.audio = audioResult;
+	stompClient.send(`/app/game/chat/${gameData.id}`, {}, JSON.stringify(messageObj));
 }
 
 function recordSound() {
@@ -286,6 +287,8 @@ function checkEndOfGame(gameState) {
 		} else {
 			displayModal('lose');
 		}
+	} else if (gameState.finished) {
+		displayModal('opponent-leave');
 	}
 }
 

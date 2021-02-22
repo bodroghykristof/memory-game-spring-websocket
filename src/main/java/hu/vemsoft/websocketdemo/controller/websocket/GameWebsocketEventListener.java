@@ -1,5 +1,7 @@
 package hu.vemsoft.websocketdemo.controller.websocket;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -7,7 +9,10 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+import hu.vemsoft.websocketdemo.entity.Game;
+import hu.vemsoft.websocketdemo.entity.GameState;
 import hu.vemsoft.websocketdemo.service.GameService;
+import hu.vemsoft.websocketdemo.service.GameStateService;
 
 @Component
 public class GameWebsocketEventListener {
@@ -20,6 +25,9 @@ public class GameWebsocketEventListener {
 
 	@Autowired
 	private GameService gameService;
+	
+	@Autowired
+	private GameStateService gameStateService;
 
 	private static final int WAITING_TIME_IN_MILLISECONDS = 5000;
 
@@ -47,14 +55,21 @@ public class GameWebsocketEventListener {
 
 			if (connectionHandler.hasUserExitPermanently(gameId)) {
 				messagingTemplate.convertAndSend("/topic/game/info/" + gameId, "Opponent has left the game");
-				if (gameService.findById(gameId).isPresent()) {
-					gameService.deleteById(gameId);
+				Optional<Game> gameOptional = gameService.findById(gameId);
+
+				if (gameOptional.isPresent()) {
+					
+					GameState gameState = gameStateService.findByGameId(gameId);
+					
+					if (gameState.isFinished()) {
+						gameService.deleteById(gameId);
+					} else {
+						gameState.setFinished(true);
+						gameStateService.save(gameState);
+					}
 				}
 			}
 		};
-
 		new Thread(checkRefreshOrPageLeave).start();
-
 	}
-
 }
