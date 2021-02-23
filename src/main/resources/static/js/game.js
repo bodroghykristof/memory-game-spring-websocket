@@ -62,7 +62,9 @@ function initScoreBoardNames() {
 
 function showImage() {
 	if (gameData.image) {
-		document.querySelector('.image-container').innerHTML = `<img src=${gameData.image} style="width: 200px;" alt="image-${gameData.id}"></img>`
+		document.querySelector('.image-container').innerHTML = `<img src=${gameData.image} alt="image-${gameData.id}"></img>`
+	} else {
+		document.querySelector('.image-container').innerHTML = `<p>No image uploaded</p>`
 	}
 }
 
@@ -315,6 +317,8 @@ function createMessageElement(messageObj) {
 	element.classList.add('message');
 	element.innerHTML = `<b>${messageObj.username}</b>: ${messageObj.message}`;
 	if (messageObj.file) {
+		const imageContainer = document.createElement('div');
+		imageContainer.classList.add('image-container');
 		const image = document.createElement('img');
 		image.src = messageObj.file;
 		image.alt = "chat-image";
@@ -325,7 +329,8 @@ function createMessageElement(messageObj) {
 		}
 		image.addEventListener('click' , () => console.log('Ouch'));
 		let messageBoard = document.querySelector('.message-board');
-		element.appendChild(image);
+		imageContainer.appendChild(image);
+		element.appendChild(imageContainer);
 	}
 	if (messageObj.audio) {
 		const audio = document.createElement('audio');

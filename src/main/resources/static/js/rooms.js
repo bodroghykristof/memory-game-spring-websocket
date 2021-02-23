@@ -33,12 +33,16 @@ function createGameDiv(game, comment) {
 	gameDiv.classList.add('room');
 	gameDiv.dataset.roomId = game.id;
 	gameDiv.innerHTML = gameDivContent(game, comment);
+	let imageElement;
 	if (game.image) {
-		const imageTag = `<img src=${game.image} style="width: 200px;" alt="image-${game.id}"></img>`;
-		gameDiv.innerHTML += imageTag;
+		imageElement = `<div class=image-container><img src=${game.image} alt="image-${game.id}"></img></div>`;
+	} else {
+		imageElement = `<div class=image-container style="background-color: #f0f0f0;"><p>No image uploaded</p></div>`;
 	}
+	gameDiv.innerHTML += imageElement;
 	return gameDiv;
 }
+
 
 function gameDivContent(gameObj, comment) {
 	return `<h4>Game number ${gameObj.id}</h4>
